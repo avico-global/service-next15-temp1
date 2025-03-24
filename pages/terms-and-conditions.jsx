@@ -1,13 +1,11 @@
-import React from "react";
-import Head from "next/head";
-import Banner from "../components/container/home/Banner";
+"use client";
+import React, { useEffect, useState } from "react";
 import Navbar from "../components/container/Navbar/Navbar";
-import OurServices from "../components/container/home/OurServices";
-import Video from "../components/container/Video";
-import FAQs from "../components/container/FAQs";
-import CTABanner from "../components/container/home/CTABanner";
-import Testimonial from "../components/container/home/Testimonial";
 import Footer from "../components/container/Footer";
+import Container from "../components/common/Container";
+import MarkdownIt from "markdown-it";
+import Head from "next/head";
+
 import {
   callBackendApi,
   getDomain,
@@ -15,37 +13,47 @@ import {
   robotsTxt,
 } from "@/lib/myFun";
 import GoogleTagManager from "@/lib/GoogleTagManager";
-import Gallery from "../components/container/home/Gallery";
-import ServiceCities from "../components/container/home/ServiceCities";
-import Contact from "../components/container/Contact";
-import About from "../components/container/home/About";
+import FullContainer from "@/components/common/FullContainer";
+import Breadcrumbs from "@/components/common/Breadcrumbs";
+import useBreadcrumbs from "@/lib/useBreadcrumbs";
+import { useRouter } from "next/router";
+import { Facebook, Twitter, Instagram, Linkedin, Phone, Mail, MapPin, Clock, ArrowRight, ChevronRight } from "lucide-react";  
 
-export default function Home({
+export default function TermsAndConditions({
   logo,
   imagePath,
-  gallery,
-  services,
-  gallery_heading,
-  service_cities, 
   phone,
-  banner,
-  locations,
-  about,
-  meta, 
+  services,
   domain,
   favicon,
-  })
-  {
-    return (
-    <div>
-      
+  meta,
+  footer,
+  terms,
+}) {
+  const markdownIt = new MarkdownIt();
+  const content = markdownIt.render(terms || "");
+  const breadcrumbs = useBreadcrumbs();
+  const router = useRouter();
+  const currentPath = router.asPath;
+
+  useEffect(() => {
+    if (currentPath.includes("%20") || currentPath.includes(" ")) {
+      router.replace("/terms-and-conditions");
+    }
+  }, [currentPath, router]);
+
+  return (
+    <main>
       <Head>
         <meta charSet="UTF-8" />
         <title>{meta?.title}</title>
         <meta name="description" content={meta?.description} />
         <link rel="author" href={`https://www.${domain}`} />
         <link rel="publisher" href={`https://www.${domain}`} />
-        <link rel="canonical" href={`https://www.${domain}`} />
+        <link
+          rel="canonical"
+          href={`https://www.${domain}/terms-and-conditions`}
+        />
         <meta name="theme-color" content="#008DE5" />
         <link rel="manifest" href="/manifest.json" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
@@ -58,35 +66,43 @@ export default function Home({
         <link
           rel="apple-touch-icon"
           sizes="180x180"
-          href={`${process.env.NEXT_PUBLIC_SITE_MANAGER}/images/${imagePath}/${favicon}`}
+          href={`${imagePath}/${favicon}`}
         />
         <link
           rel="icon"
           type="image/png"
           sizes="32x32"
-          href={`${process.env.NEXT_PUBLIC_SITE_MANAGER}/images/${imagePath}/${favicon}`}
+          href={`${imagePath}/${favicon}`}
         />
         <link
           rel="icon"
           type="image/png"
           sizes="16x16"
-          href={`${process.env.NEXT_PUBLIC_SITE_MANAGER}/images/${imagePath}/${favicon}`}
+          href={`${imagePath}/${favicon}`}
         />
       </Head>
-      <Navbar phone={phone} logo={logo} imagePath={imagePath} services={services} /> 
-      <Banner phone={phone} banner={banner} image={`${imagePath}/${banner?.file_name}`}/>{" "}
-      <OurServices data={services} />
-      <Gallery  gallery={gallery} imagePath={imagePath} gallery_heading={gallery_heading} />
-      <About about={about} imagePath={imagePath}/> 
-      <Video />
-      <Contact phone={phone} />
-      <FAQs phone={phone} /> 
-      <CTABanner phone={phone} />
-      <Testimonial /> 
-      <ServiceCities service_cities={service_cities} locations={locations} />
-      <Footer logo={logo} imagePath={imagePath} phone={phone} />
 
-    </div>
+      <Navbar
+        logo={logo}
+        imagePath={imagePath}
+        phone={phone}
+        services={services}
+      />
+      <FullContainer className="pt-20 bg-gray-800 ">
+        <FullContainer className=" bg-white">
+        <Container>
+          <Breadcrumbs breadcrumbs={breadcrumbs} className="py-7" />
+
+          <div
+            className="prose max-w-full w-full mb-5"
+            dangerouslySetInnerHTML={{ __html: content }}
+          />
+        </Container>
+        </FullContainer>
+      </FullContainer>
+
+      <Footer data={footer} logo={logo} imagePath={imagePath} />
+    </main>
   );
 }
 
@@ -104,11 +120,12 @@ export async function getServerSideProps({ req }) {
   const about = await callBackendApi({ domain, tag: "about" });
   const benefits = await callBackendApi({ domain, tag: "benefits" });
   const testimonials = await callBackendApi({ domain, tag: "testimonials" });
-  const meta = await callBackendApi({ domain, tag: "meta_home" });
+  const meta = await callBackendApi({ domain, tag: "meta_terms" });
   const favicon = await callBackendApi({ domain, tag: "favicon" });
   const footer = await callBackendApi({ domain, tag: "footer" });
-  const gallery_heading = await callBackendApi({ domain, tag: "gallery_heading" });
   const locations = await callBackendApi({ domain, tag: "locations" });
+  const terms = await callBackendApi({ domain, tag: "terms" });
+
   robotsTxt({ domain });
 
   return {
@@ -127,10 +144,8 @@ export async function getServerSideProps({ req }) {
       meta: meta?.data[0]?.value || null,
       favicon: favicon?.data[0]?.file_name || null,
       footer: footer?.data[0] || null,
-      gallery_heading: gallery_heading?.data[0] || null,
       locations: locations?.data[0]?.value || [],
+      terms: terms?.data[0]?.value || null,
     },
   };
 }
-
-

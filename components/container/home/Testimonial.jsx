@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
+import Container from '@/components/common/Container';
 
 export default function Testimonial() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -144,15 +145,19 @@ export default function Testimonial() {
   }
 
   return (
-    <div className="py-16 bg-white text-gray-800">
-      <div className="max-w-7xl mx-auto px-4 relative">
+    <Container className="py-16 bg-white text-gray-800 ">
+      <div className="max-w-7xl mx-auto relative">
         {/* Header Section */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold mb-4 text-yellow-500">
+        <div className="flex flex-col gap-1 pb-10 items-center text-center">
+          <h3 className="text-sm font-medium text-gray-600 tracking-wide uppercase">
+            Testimonials
+          </h3>
+          <h2 className="text-4xl font-extrabold text-gray-900 leading-snug">
             Client Experiences
+            <div className="w-30 h-1 bg-gradient-to-r from-[#F7B914] to-[white] mx-auto mb-4 rounded-full"></div>
           </h2>
-          
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+
+          <p className="max-w-2xl text-base text-gray-700 leading-relaxed">
             Read what our customers have to say about their experiences with our towing services.
           </p>
         </div>
@@ -245,6 +250,6 @@ export default function Testimonial() {
           ))}
         </div>
       </div>
-    </div>
+    </Container>
   );
 }

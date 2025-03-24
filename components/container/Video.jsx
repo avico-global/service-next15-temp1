@@ -1,20 +1,17 @@
-import React from 'react'
-import FullContainer from '../common/FullContainer'
-import Container from '../common/Container'
+import React from "react";
+import FullContainer from "../common/FullContainer";
+import Container from "../common/Container";
 
 export default function Video() {
   return (
-    <FullContainer>
-      <Container className='h-screen'>
-        <iframe
-        src="https://www.youtube.com/embed/TuJXG9841tc"
-        title="YouTube video player"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowFullScreen
-        className="w-full h-[625px]"
-        />
-
+      <Container className="">
+        <div className="relative w-full h-0 pb-[56.25%]">
+          <iframe
+            className="absolute top-0 left-0 w-full h-full"
+            src="https://www.youtube.com/embed/TuJXG9841tc"
+            allowFullScreen
+          ></iframe>
+        </div>
       </Container>
-    </FullContainer>
-  )
+  );
 }

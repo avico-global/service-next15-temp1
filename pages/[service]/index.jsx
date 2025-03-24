@@ -1,44 +1,41 @@
 import React from "react";
-import Head from "next/head";
-import Banner from "../components/container/home/Banner";
-import Navbar from "../components/container/Navbar/Navbar";
-import OurServices from "../components/container/home/OurServices";
-import Video from "../components/container/Video";
-import FAQs from "../components/container/FAQs";
-import CTABanner from "../components/container/home/CTABanner";
-import Testimonial from "../components/container/home/Testimonial";
-import Footer from "../components/container/Footer";
+import ServiceBanner from "@/components/container/service/ServiceBanner";
+import FAQs from "@/components/container/FAQs";
 import {
-  callBackendApi,
   getDomain,
   getImagePath,
+  callBackendApi,
   robotsTxt,
-} from "@/lib/myFun";
+} from "../../lib/myFun";
+import Navbar from "@/components/container/Navbar/Navbar";
+import Footer from "@/components/container/Footer";
+import useBreadcrumbs from "@/lib/useBreadcrumbs";
+import Breadcrumbs from "@/components/common/BreadCrumbs";
+import { useRouter } from "next/router";
+import Container from "@/components/common/Container";
+import Contact from "@/components/container/Contact";
+import ServiceCities from "@/components/container/home/ServiceCities";
+import About from "@/components/container/home/About";
+import Head from "next/head";
 import GoogleTagManager from "@/lib/GoogleTagManager";
-import Gallery from "../components/container/home/Gallery";
-import ServiceCities from "../components/container/home/ServiceCities";
-import Contact from "../components/container/Contact";
-import About from "../components/container/home/About";
 
-export default function Home({
+export default function index({
   logo,
   imagePath,
   gallery,
   services,
+  service_banner,
   gallery_heading,
-  service_cities, 
+  service_cities,
   phone,
-  banner,
-  locations,
   about,
-  meta, 
+  meta,
   domain,
   favicon,
-  })
-  {
-    return (
-    <div>
-      
+}) {
+  const breadcrumbs = useBreadcrumbs();
+  return (
+    <>
       <Head>
         <meta charSet="UTF-8" />
         <title>{meta?.title}</title>
@@ -73,20 +70,26 @@ export default function Home({
           href={`${process.env.NEXT_PUBLIC_SITE_MANAGER}/images/${imagePath}/${favicon}`}
         />
       </Head>
-      <Navbar phone={phone} logo={logo} imagePath={imagePath} services={services} /> 
-      <Banner phone={phone} banner={banner} image={`${imagePath}/${banner?.file_name}`}/>{" "}
-      <OurServices data={services} />
-      <Gallery  gallery={gallery} imagePath={imagePath} gallery_heading={gallery_heading} />
-      <About about={about} imagePath={imagePath}/> 
-      <Video />
+      <Navbar
+        phone={phone}
+        logo={logo}
+        imagePath={imagePath}
+        services={services}
+      />
+      <ServiceBanner
+        banner={service_banner}
+        image={`${imagePath}/${service_banner?.file_name}`}
+        phone={phone}
+      />
+      <Container>
+        <Breadcrumbs breadcrumbs={breadcrumbs} className="py-7" />
+      </Container>
+    <About about={about} imagePath={imagePath} />
       <Contact phone={phone} />
-      <FAQs phone={phone} /> 
-      <CTABanner phone={phone} />
-      <Testimonial /> 
-      <ServiceCities service_cities={service_cities} locations={locations} />
+      <FAQs faqs_heading={gallery_heading} phone={phone} />
+      <ServiceCities />
       <Footer logo={logo} imagePath={imagePath} phone={phone} />
-
-    </div>
+    </>
   );
 }
 
@@ -103,22 +106,31 @@ export async function getServerSideProps({ req }) {
   const gallery = await callBackendApi({ domain, tag: "gallery" });
   const about = await callBackendApi({ domain, tag: "about" });
   const benefits = await callBackendApi({ domain, tag: "benefits" });
+  const service_banner = await callBackendApi({
+    domain,
+    tag: "service_banner",
+  });
   const testimonials = await callBackendApi({ domain, tag: "testimonials" });
-  const meta = await callBackendApi({ domain, tag: "meta_home" });
+  const meta = await callBackendApi({ domain, tag: "meta_service" });
   const favicon = await callBackendApi({ domain, tag: "favicon" });
   const footer = await callBackendApi({ domain, tag: "footer" });
-  const gallery_heading = await callBackendApi({ domain, tag: "gallery_heading" });
-  const locations = await callBackendApi({ domain, tag: "locations" });
+  const gallery_heading = await callBackendApi({
+    domain,
+    tag: "gallery_heading",
+  });
+
   robotsTxt({ domain });
 
   return {
     props: {
       domain,
       imagePath,
+      meta,
       logo: logo?.data[0] || null,
       banner: banner?.data[0] || null,
       phone: phone?.data[0]?.value || null,
       services: services?.data[0]?.value || [],
+      service_banner: service_banner?.data[0] || null,
       features: features?.data[0] || [],
       gallery: gallery?.data[0]?.value || [],
       about: about?.data[0] || null,
@@ -128,9 +140,6 @@ export async function getServerSideProps({ req }) {
       favicon: favicon?.data[0]?.file_name || null,
       footer: footer?.data[0] || null,
       gallery_heading: gallery_heading?.data[0] || null,
-      locations: locations?.data[0]?.value || [],
     },
   };
 }
-
-
